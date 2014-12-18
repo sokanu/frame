@@ -23,6 +23,7 @@ class ImageViewTestCase(TestCase):
 
         self.assertEqual(image.size, expected_image.size)
 
+class ImageSizeTestCase(TestCase):
     def test_response_image_resize_width(self):
         image = initialize_request_image('/')
 
@@ -84,3 +85,32 @@ class ImageViewTestCase(TestCase):
 
         image = initialize_request_image('/?height=150.432')
         self.assertEqual(image.size[1], 150)
+
+
+class ImageQualityResponse(TestCase):
+    def test_full_quality_image(self):
+        image = initialize_request_image('/?quality=100')
+
+        image_path = os.path.dirname(os.path.realpath(__file__)) + '/test_resources/frame.jpg'
+        expected_image = Image.open(image_path)
+
+        i1d = StringIO.StringIO()
+        image.save(i1d, 'jpeg')
+
+        i2d = StringIO.StringIO()
+        expected_image.save(i2d, 'jpeg')
+
+        data_size_diff = abs(float(i1d.len) / i2d.len - 1)
+
+        self.assertTrue(data_size_diff < 0.005)
+
+    def test_variable_quality_image(self):
+        lower_quality_image = initialize_request_image('/?quality=80')
+        i1d = StringIO.StringIO()
+        lower_quality_image.save(i1d, 'jpeg')
+
+        even_lower_quality_image = initialize_request_image('/?quality=20')
+        i2d = StringIO.StringIO()
+        even_lower_quality_image.save(i2d, 'jpeg')
+
+        self.assertTrue(i1d.len > i2d.len)

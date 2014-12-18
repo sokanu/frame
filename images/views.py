@@ -31,6 +31,14 @@ class ImageView(View):
 
             image = image.resize((width, height))
 
+        if request.GET.get('quality') and not float(request.GET['quality']) >= 100:
+            quality = int(float(request.GET['quality']))
+            quality_modified_data = StringIO.StringIO()
+            image.save(quality_modified_data, 'jpeg', quality=quality)
+            quality_modified_data.seek(0)
+            image = Image.open(quality_modified_data)
+
+
         response = HttpResponse(content_type='image/jpeg')
         image.save(response, 'jpeg')
         return response
