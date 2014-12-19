@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from images.modifiers import SizeModifier
 from images.modifiers import QualityModifier
+from images.models import Image as ImageModel
 from shutil import copyfileobj
 from PIL import Image
 import StringIO
@@ -34,8 +35,13 @@ class ImageUploaderView(View):
         if not fr.content_type in settings.ALLOWED_FORMATS:
             return HttpResponseForbidden()
 
+
+        # Ugh, we should change this; needs to be a better way to get a unique ID
+        # rather than relying on creating instance first
+        image_instance = ImageModel.objects.create(file_name=fr.name)
+
+        file_id = image_instance.encrypted_pk
         file_extension = fr.name.split('.')[-1]
-        file_id = 'test'
         file_name = os.path.join(settings.MEDIA_ROOT, '%s.%s' % (file_id, file_extension))
 
         with open(file_name, 'w') as fw:
