@@ -2,6 +2,7 @@ from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import HttpResponse
+from django.http import Http404
 from django.http import HttpResponseForbidden
 from images.modifiers import SizeModifier
 from images.modifiers import QualityModifier
@@ -13,18 +14,24 @@ import os
 
 
 class ImageView(View):
-    def get(self, request):
-        image_path = os.path.dirname(os.path.realpath(__file__)) + '/test_resources/frame.jpg'
-        image_data = open(image_path, 'r')
-        image = Image.open(image_data)
+    def get(self, request, image_identifier):
+        try:
+            image_instance = ImageModel.objects.get(encrypted_pk=image_identifier)
+        except ImageModel.DoesNotExist:
+            raise Http404
 
-        # apply modifiers
-        modifiers = [SizeModifier, QualityModifier]
-        for modifier_class in modifiers:
-            image = modifier_class(image=image, params=request.GET).run().image
+        image_path = os.path.join(settings.MEDIA_ROOT, image_identifier)
 
-        response = HttpResponse(content_type='image/jpeg')
-        image.save(response, 'jpeg')
+        with open(image_path, 'r') as image_data:
+            image = Image.open(image_data)
+
+            # apply modifiers
+            modifiers = [SizeModifier, QualityModifier]
+            for modifier_class in modifiers:
+                image = modifier_class(image=image, params=request.GET).run().image
+
+            response = HttpResponse(content_type=image_instance.content_type)
+            image.save(response, 'jpeg')
         return response
 
 class ImageUploaderView(View):
@@ -38,13 +45,13 @@ class ImageUploaderView(View):
 
         # Ugh, we should change this; needs to be a better way to get a unique ID
         # rather than relying on creating instance first
-        image_instance = ImageModel.objects.create(file_name=fr.name)
+        image_instance = ImageModel.objects.create(file_name=fr.name, content_type=fr.content_type)
 
-        file_id = image_instance.encrypted_pk
-        file_extension = fr.name.split('.')[-1]
-        file_name = os.path.join(settings.MEDIA_ROOT, '%s.%s' % (file_id, file_extension))
+        image_identifier = image_instance.encrypted_pk
+        image_extension = fr.name.split('.')[-1]
+        image_path = os.path.join(settings.MEDIA_ROOT, image_identifier)
 
-        with open(file_name, 'w') as fw:
+        with open(image_path, 'w') as fw:
             copyfileobj(fr, fw)
 
-        return HttpResponse(file_id)
+        return HttpResponse(image_identifier)

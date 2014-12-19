@@ -10,5 +10,5 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^upload/$', ImageUploaderView.as_view()),
-    url(r'^$', ImageView.as_view())
+    url(r'^(?P<image_identifier>[^/]+)/$', ImageView.as_view())
 )

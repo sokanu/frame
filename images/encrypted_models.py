@@ -40,7 +40,7 @@ class EncryptedPKModelManager(models.Manager):
                 struct.pack('<Q', base36decode(encrypted_pk))
             ))[0]
  
-        return super(EncryptedPKManager, self).get(*args, **kwargs)
+        return super(EncryptedPKModelManager, self).get(*args, **kwargs)
  
  
 class EncryptedPKModel(models.Model):

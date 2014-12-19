@@ -23,17 +23,27 @@ def build_path(file_name):
 
 # tests
 class ImageViewTestCase(TestCase):
-    def test_response_image(self):
-        image = request_image('/')
-
+    def test_request_valid_image(self):
+        # upload
         image_path = build_path('frame.jpg')
-        expected_image = Image.open(image_path)
+        upload_response = upload_image(image_path)
+        image_identifier = upload_response.content
 
-        self.assertEqual(image.size, expected_image.size)
+        # ensure we can download
+        c = Client()
+        response = c.get('/%s/' % image_identifier)
+        self.assertEqual(response.status_code, 200)
+
+    def test_request_invalid_image(self):
+        c = Client()
+        response = c.get('/123123/')
+        self.assertEqual(response.status_code, 404)
+
 
 class ImageSizeTestCase(TestCase):
     def test_response_image_resize_width(self):
-        image = request_image('/')
+        image_identifier = upload_image(build_path('frame.jpg')).content
+        image = request_image('/%s/' % image_identifier)
 
         image_path = build_path('frame.jpg')
         expected_image = Image.open(image_path)
@@ -43,7 +53,7 @@ class ImageSizeTestCase(TestCase):
         self.assertNotEqual(image.size[0], 100)
 
         # request modified width image
-        modified_width_image = request_image('/?width=100')
+        modified_width_image = request_image('/%s/?width=100' % image_identifier)
 
         # test modified response size
         self.assertEqual(modified_width_image.size[0], 100)
@@ -53,7 +63,8 @@ class ImageSizeTestCase(TestCase):
         self.assertNotEqual(image.size[0] / float(image.size[1]), modified_width_image.size[0] / float(modified_width_image.size[1])) 
         
     def test_response_image_resize_height(self):
-        image = request_image('/')
+        image_identifier = upload_image(build_path('frame.jpg')).content
+        image = request_image('/%s/' % image_identifier)
 
         image_path = build_path('frame.jpg')
         expected_image = Image.open(image_path)
@@ -63,7 +74,7 @@ class ImageSizeTestCase(TestCase):
         self.assertNotEqual(image.size[1], 100)
 
         # request modified width image
-        modified_height_image = request_image('/?height=100')
+        modified_height_image = request_image('/%s/?height=100' % image_identifier)
 
         # test modified response size
         self.assertEqual(modified_height_image.size[1], 100)
@@ -73,31 +84,36 @@ class ImageSizeTestCase(TestCase):
         self.assertNotEqual(image.size[0] / float(image.size[1]), modified_height_image.size[0] / float(modified_height_image.size[1])) 
  
     def test_response_image_resize_width_height(self):
+        image_identifier = upload_image(build_path('frame.jpg')).content
+
         # request modified height & width image
-        modified_image = request_image('/?width=100&height=100')
+        modified_image = request_image('/%s/?width=100&height=100' % image_identifier)
 
         # test modified response size
         self.assertEqual(modified_image.size[0], 100)
         self.assertEqual(modified_image.size[1], 100)
 
     def test_response_larger_image(self):
-        image = request_image('/')
-        larger_image = request_image('/?width=%d' % (image.size[0] * 2))
+        image_identifier = upload_image(build_path('frame.jpg')).content
+        image = request_image('/%s/' % image_identifier)
+        larger_image = request_image('/%s/?width=%d' % (image_identifier, (image.size[0] * 2)))
 
         self.assertEqual(image.size[0] * 2, larger_image.size[0])
         self.assertEqual(image.size[1] * 2, larger_image.size[1])
 
     def test_image_sizes_are_integers(self):
-        image = request_image('/?width=100.432')
+        image_identifier = upload_image(build_path('frame.jpg')).content
+        image = request_image('/%s/?width=100.432' % image_identifier)
         self.assertEqual(image.size[0], 100)
 
-        image = request_image('/?height=150.432')
+        image = request_image('/%s/?height=150.432' % image_identifier)
         self.assertEqual(image.size[1], 150)
 
 
 class ImageQualityResponse(TestCase):
     def test_full_quality_image(self):
-        image = request_image('/?quality=100')
+        image_identifier = upload_image(build_path('frame.jpg')).content
+        image = request_image('/%s/?quality=100' % image_identifier)
 
         image_path = build_path('frame.jpg')
         expected_image = Image.open(image_path)
@@ -113,11 +129,12 @@ class ImageQualityResponse(TestCase):
         self.assertTrue(data_size_diff < 0.005)
 
     def test_variable_quality_image(self):
-        lower_quality_image = request_image('/?quality=80')
+        image_identifier = upload_image(build_path('frame.jpg')).content
+        lower_quality_image = request_image('/%s/?quality=80' % image_identifier)
         i1d = StringIO.StringIO()
         lower_quality_image.save(i1d, 'jpeg')
 
-        even_lower_quality_image = request_image('/?quality=20')
+        even_lower_quality_image = request_image('/%s/?quality=20' % image_identifier)
         i2d = StringIO.StringIO()
         even_lower_quality_image.save(i2d, 'jpeg')
 
@@ -131,17 +148,15 @@ class ImageUploaderTest(TestCase):
             response = upload_image(image_path)
             file_id = response.content
 
-            response_image = request_image('/' + file_id)
+            response_image = request_image('/%s/' % file_id)
             initial_image = Image.open(image_path)
-            self.assertEqual(response_image.size[0], initial_image.size[0])
-            self.assertEqual(response_image.size[1], initial_image.size[1])
+            self.assertEqual(response_image.size, initial_image.size)
 
     def test_valid_formats(self):
         for image_file in ['frame.jpg', 'frame.jpeg', 'frame.png', 'frame.gif']:
             image_path = build_path(image_file)
             response = upload_image(image_path)
             self.assertEqual(response.status_code, 200)
-            print 'RESPONSE: %s ' % response.content
 
     def test_invalid_format(self):
         invalid_path = build_path('document.txt')
