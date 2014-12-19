@@ -114,3 +114,25 @@ class ImageQualityResponse(TestCase):
         even_lower_quality_image.save(i2d, 'jpeg')
 
         self.assertTrue(i1d.len > i2d.len)
+
+
+class ImageUploaderTest(TestCase):
+    def test_simple(self):
+        c = Client()
+
+        image_path = os.path.dirname(os.path.realpath(__file__)) + '/test_resources/frame.jpg'
+        with open(image_path, 'r') as fp:
+            response = c.post('/upload/', {'attachment': fp})
+            fp.seek(0,2) # go to end
+            print fp.tell()
+        self.assertEqual(response.content, 'ok')
+
+
+    # try all accepted file formats
+    # try invalid file format
+    # try file size limits
+    # test to ensure that only valid image files are accepted
+    # try retrieving the uploaded image
+    # try using the wrong argument for file
+    # fail basic validation
+    # pass basic validation
