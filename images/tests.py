@@ -136,3 +136,4 @@ class ImageUploaderTest(TestCase):
     # try using the wrong argument for file
     # fail basic validation
     # pass basic validation
+    # test uploading thousands of files? may be a little intensive, but good for testing memory leaks and forgotten file closing

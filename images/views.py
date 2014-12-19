@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import HttpResponse
@@ -8,8 +9,6 @@ from PIL import Image
 import StringIO
 import os
 
-DESTINATION = os.path.dirname(os.path.realpath(__file__)) + '/../uploads/'
-# Create your views here.
 
 class ImageView(View):
     def get(self, request):
@@ -30,7 +29,7 @@ class ImageUploaderView(View):
 
     def post(self, request):
         fr = request.FILES['attachment']
-        with open(os.path.join(DESTINATION, 'test.jpg'), 'w') as fw:
+        with open(os.path.join(settings.MEDIA_ROOT, 'test.jpg'), 'w') as fw:
             copyfileobj(fr, fw)
 
         print dir(fw)
