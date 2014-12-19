@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from images.views import ImageUploaderView
 from images.views import ImageView
 
 urlpatterns = patterns('',
@@ -8,5 +9,6 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', ImageView.as_view())
+    url(r'^upload/$', ImageUploaderView.as_view()),
+    url(r'^(?P<image_identifier>[^/]+)/$', ImageView.as_view())
 )

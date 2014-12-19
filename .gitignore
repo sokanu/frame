@@ -55,3 +55,6 @@ target/
 
 # Database
 db.sqlite3
+
+# Project-specific
+uploads
