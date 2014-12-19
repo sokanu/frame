@@ -4,7 +4,7 @@ import os
 from PIL import Image
 import StringIO
 
-# helper
+# helpers
 def initialize_request_image(url):
     c = Client()
     response = c.get(url)
@@ -12,13 +12,15 @@ def initialize_request_image(url):
     response_image = Image.open(response_data)
     return response_image
 
+def build_path(file_name):
+    return os.path.dirname(os.path.realpath(__file__)) + '/test_resources/%s' % file_name
 
 # tests
 class ImageViewTestCase(TestCase):
     def test_response_image(self):
         image = initialize_request_image('/')
 
-        image_path = os.path.dirname(os.path.realpath(__file__)) + '/test_resources/frame.jpg'
+        image_path = build_path('frame.jpg')
         expected_image = Image.open(image_path)
 
         self.assertEqual(image.size, expected_image.size)
@@ -27,7 +29,7 @@ class ImageSizeTestCase(TestCase):
     def test_response_image_resize_width(self):
         image = initialize_request_image('/')
 
-        image_path = os.path.dirname(os.path.realpath(__file__)) + '/test_resources/frame.jpg'
+        image_path = build_path('frame.jpg')
         expected_image = Image.open(image_path)
 
         # test initial response size
@@ -47,7 +49,7 @@ class ImageSizeTestCase(TestCase):
     def test_response_image_resize_height(self):
         image = initialize_request_image('/')
 
-        image_path = os.path.dirname(os.path.realpath(__file__)) + '/test_resources/frame.jpg'
+        image_path = build_path('frame.jpg')
         expected_image = Image.open(image_path)
 
         # test initial response size
@@ -91,7 +93,7 @@ class ImageQualityResponse(TestCase):
     def test_full_quality_image(self):
         image = initialize_request_image('/?quality=100')
 
-        image_path = os.path.dirname(os.path.realpath(__file__)) + '/test_resources/frame.jpg'
+        image_path = build_path('frame.jpg')
         expected_image = Image.open(image_path)
 
         i1d = StringIO.StringIO()
@@ -117,19 +119,25 @@ class ImageQualityResponse(TestCase):
 
 
 class ImageUploaderTest(TestCase):
-    def test_simple(self):
-        c = Client()
+    def test_valid_formats(self):
+        for image_file in ['frame.jpg', 'frame.jpeg', 'frame.png', 'frame.gif']:
+            image_path = build_path(image_file)
 
-        image_path = os.path.dirname(os.path.realpath(__file__)) + '/test_resources/frame.jpg'
-        with open(image_path, 'r') as fp:
+            with open(image_path, 'r') as fp:
+                c = Client()
+                response = c.post('/upload/', {'attachment': fp})
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_invalid_format(self):
+        invalid_path = build_path('document.txt')
+
+        with open(invalid_path, 'r') as fp:
+            c = Client()
             response = c.post('/upload/', {'attachment': fp})
-            fp.seek(0,2) # go to end
-            print fp.tell()
-        self.assertEqual(response.content, 'ok')
+        self.assertEqual(response.status_code, 403)
 
 
-    # try all accepted file formats
-    # try invalid file format
     # try file size limits
     # test to ensure that only valid image files are accepted
     # try retrieving the uploaded image
@@ -137,3 +145,4 @@ class ImageUploaderTest(TestCase):
     # fail basic validation
     # pass basic validation
     # test uploading thousands of files? may be a little intensive, but good for testing memory leaks and forgotten file closing
+

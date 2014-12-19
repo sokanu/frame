@@ -2,6 +2,7 @@ from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import HttpResponse
+from django.http import HttpResponseForbidden
 from images.modifiers import SizeModifier
 from images.modifiers import QualityModifier
 from shutil import copyfileobj
@@ -29,8 +30,15 @@ class ImageUploaderView(View):
 
     def post(self, request):
         fr = request.FILES['attachment']
-        with open(os.path.join(settings.MEDIA_ROOT, 'test.jpg'), 'w') as fw:
+
+        if not fr.content_type in settings.ALLOWED_FORMATS:
+            return HttpResponseForbidden()
+
+        file_extension = fr.name.split('.')[-1]
+        file_id = 'test'
+        file_name = os.path.join(settings.MEDIA_ROOT, '%s.%s' % (file_id, file_extension))
+
+        with open(file_name, 'w') as fw:
             copyfileobj(fr, fw)
 
-        print dir(fw)
-        return HttpResponse('ok')
+        return HttpResponse(file_id)
