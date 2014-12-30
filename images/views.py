@@ -16,7 +16,7 @@ import os
 class ImageView(View):
     def get(self, request, image_identifier):
         try:
-            image_instance = ImageModel.objects.get(encrypted_pk=image_identifier)
+            image_instance = ImageModel.objects.get(hash=image_identifier)
         except ImageModel.DoesNotExist:
             raise Http404
 
@@ -45,13 +45,17 @@ class ImageUploaderView(View):
 
         # Ugh, we should change this; needs to be a better way to get a unique ID
         # rather than relying on creating instance first
-        image_instance = ImageModel.objects.create(file_name=fr.name, content_type=fr.content_type)
+        image_instance = ImageModel(file_name=fr.name, content_type=fr.content_type)
 
-        image_identifier = image_instance.encrypted_pk
+        image_identifier = ImageModel.generate_hash()
+        image_instance.hash = image_identifier
+
         image_extension = fr.name.split('.')[-1]
         image_path = os.path.join(settings.MEDIA_ROOT, image_identifier)
 
         with open(image_path, 'w') as fw:
             copyfileobj(fr, fw)
+
+        image_instance.save()
 
         return HttpResponse(image_identifier)
