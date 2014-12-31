@@ -1,5 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.conf.urls.static import static
+from django.conf import settings
 from images.views import ImageUploaderView
 from images.views import ImageView
 
@@ -11,4 +13,4 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^upload/$', ImageUploaderView.as_view()),
     url(r'^(?P<image_identifier>[^/]+)/$', ImageView.as_view())
-)
+) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
