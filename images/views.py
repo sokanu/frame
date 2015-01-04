@@ -8,13 +8,12 @@ from django.http import HttpResponseBadRequest
 from images.modifiers import SizeModifier
 from images.modifiers import QualityModifier
 from images.models import Image as ImageModel
-from images.storage import S3Storage as LocalStorage
+from images.storage import LocalStorage as StorageLibrary
 from django.shortcuts import render
 from django.shortcuts import redirect
 from PIL import Image
 import StringIO
 import os
-import urllib
 
 
 class ImageView(View):
@@ -37,8 +36,18 @@ class ImageView(View):
 
         # grab original image instance data
         image_instance = ImageModel.objects.get(hash=image_identifier, variation__isnull=True)
+
+        # download original image data
+        err_is_this_duplicate_image_data = StorageLibrary(
+                file_instance=None, 
+                request=None, 
+                hash=image_identifier, 
+                variation=None
+        ).get_file_data()
+
+        # why is this needed?
         image_data = StringIO.StringIO()
-        image_data.write(urllib.urlopen(image_instance.path).read())
+        image_data.write(err_is_this_duplicate_image_data)
         image_data.seek(0)
 
         # open PIL image instance with image data
@@ -55,7 +64,7 @@ class ImageView(View):
         temporary_file_string.seek(0)
 
         # create a new storage instance and save the modified file
-        storage_instance = LocalStorage(
+        storage_instance = StorageLibrary(
                 file_instance=temporary_file_string, 
                 request=request, 
                 hash=image_identifier,
@@ -92,12 +101,12 @@ class ImageUploaderView(View):
 
         # Ugh, we should change this; needs to be a better way to get a unique ID
         # rather than relying on creating instance first
-        image_instance = ImageModel(file_name=fr.name, content_type=fr.content_type)
         image_identifier = ImageModel.generate_hash()
 
-        storage_instance = LocalStorage(file_instance=fr, request=request, hash=image_identifier, variation=None)
+        storage_instance = StorageLibrary(file_instance=fr, request=request, hash=image_identifier, variation=None)
         storage_instance.store()
 
+        image_instance = ImageModel(file_name=fr.name, content_type=fr.content_type)
         image_instance.hash = image_identifier
         image_instance.path = storage_instance.get_remote_path()
         image_instance.save()
