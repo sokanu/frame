@@ -8,7 +8,7 @@ from django.http import HttpResponseBadRequest
 from images.modifiers import SizeModifier
 from images.modifiers import QualityModifier
 from images.models import Image as ImageModel
-from images.storage import LocalStorage
+from images.storage import S3Storage as LocalStorage
 from django.shortcuts import render
 from django.shortcuts import redirect
 from PIL import Image
