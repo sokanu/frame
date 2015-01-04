@@ -25,13 +25,16 @@ class LocalStorage(object):
 
 
 class S3Storage(LocalStorage):
+    def __init__(self, *args, **kwargs):
+        super(S3Storage, self).__init__(*args, **kwargs)
+        self.conn = tinys3.Connection(self.S3_ACCESS_KEY, self.S3_SECRET_KEY, default_bucket=self.S3_BUCKET, tls=True)
+
     def get_remote_path(self):
-        path = 'https://%s.s3.amazonaws.com/%s' % (self.S3_BUCKET, self.get_filename())
+        path = 'https://%s.%s/%s' % (self.conn.default_bucket, self.conn.endpoint, self.get_filename())
         return path
 
     def store(self):
-        conn = tinys3.Connection(self.S3_ACCESS_KEY, self.S3_SECRET_KEY, default_bucket=self.S3_BUCKET, tls=True)
-        conn.upload(self.get_filename(), self.file_instance)
+        self.conn.upload(self.get_filename(), self.file_instance)
 
     @property
     def S3_BUCKET(self):
