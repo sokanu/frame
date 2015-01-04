@@ -6,16 +6,14 @@ import os
 import urllib
 
 class LocalStorage(object):
-    def __init__(self, file_instance, request, hash, variation):
+    def __init__(self, file_instance, hash, variation):
         """
         Concerns:
-        - I don't like having to blindly pass in request. It ties you down to a request-based world and it's way too broad reaching
         - The variation property is a little confusing; should it be a dictionary or the argument slug approach? The argument slug method is in a totally different world, so if anything else had to use this it would be screwed. Maybe we should force a dictionary and then move the argument slug creation code here
         - Should we include file_instance during initialization, or on upload? This library was originally about uploading and uploading only, but now that we're getting into downloading it doesn't make sense. Maybe we put this in the store method
         """
 
         self.file_instance = file_instance
-        self.request = request
         self.hash = hash
         self.variation = variation
 

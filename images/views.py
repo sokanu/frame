@@ -40,7 +40,6 @@ class ImageView(View):
         # download original image data
         err_is_this_duplicate_image_data = StorageLibrary(
                 file_instance=None, 
-                request=None, 
                 hash=image_identifier, 
                 variation=None
         ).get_file_data()
@@ -66,7 +65,6 @@ class ImageView(View):
         # create a new storage instance and save the modified file
         storage_instance = StorageLibrary(
                 file_instance=temporary_file_string, 
-                request=request, 
                 hash=image_identifier,
                 variation = self.create_argument_slug(request.GET)
         )
@@ -103,7 +101,7 @@ class ImageUploaderView(View):
         # rather than relying on creating instance first
         image_identifier = ImageModel.generate_hash()
 
-        storage_instance = StorageLibrary(file_instance=fr, request=request, hash=image_identifier, variation=None)
+        storage_instance = StorageLibrary(file_instance=fr, hash=image_identifier, variation=None)
         storage_instance.store()
 
         image_instance = ImageModel(file_name=fr.name, content_type=fr.content_type)
