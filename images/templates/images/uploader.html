@@ -1,6 +1,6 @@
 <h2>Uploaded images</h2>
 {% for image in images %}
-<img src="{{ image.path }}">
+<img src="{{ image.get_absolute_url }}?width=100">
 {% endfor %}
 
 <h2>Upload
