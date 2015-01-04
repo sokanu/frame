@@ -1,0 +1,11 @@
+<h2>Uploaded images</h2>
+{% for image in images %}
+<img src="{{ image.get_absolute_url }}?width=100">
+{% endfor %}
+
+<h2>Upload
+<form method='POST' action='' enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="attachment">
+    <input type="submit" value="Upload!">
+</form>

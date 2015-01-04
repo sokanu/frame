@@ -23,6 +23,9 @@ SECRET_KEY = 'wr#$q1lop5zwb--8*3%9xv-lix+ab2@dp6h&p0&l1@5w5jm^ui'
 DEBUG = True
 
 TEMPLATE_DEBUG = True
+TEMPLATE_DIRS =(
+    os.path.join(BASE_DIR, 'templates'),
+)
 
 ALLOWED_HOSTS = []
 
@@ -59,13 +62,15 @@ WSGI_APPLICATION = 'frame.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
+import dj_database_url
 
-DATABASES = {
-    'default': {
+if dj_database_url.config():
+    DATABASES = {'default': dj_database_url.config()}
+else:
+    DATABASES = {'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+    }}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
@@ -86,6 +91,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 
 
