@@ -9,6 +9,7 @@ class Image(models.Model):
     content_type = models.CharField(max_length=256)
     created_at = models.DateTimeField(auto_now_add=True)
     path = models.CharField(max_length=1024)
+    variation = models.CharField(max_length=1024, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.hash:
