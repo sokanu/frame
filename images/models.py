@@ -11,6 +11,9 @@ class Image(models.Model):
     path = models.CharField(max_length=1024)
     variation = models.CharField(max_length=1024, blank=True, null=True)
 
+    class Meta:
+        unique_together = ('hash', 'variation')
+
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('image', kwargs={'image_identifier': self.hash})
