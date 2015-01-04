@@ -23,21 +23,21 @@ class ImageView(View):
         except ImageModel.DoesNotExist:
             raise Http404
 
-        return redirect('/media/' + image_identifier)
+        return redirect(image_instance.path)
 
-        image_path = os.path.join(settings.MEDIA_ROOT, image_identifier)
-
-        with open(image_path, 'r') as image_data:
-            image = Image.open(image_data)
-
-            # apply modifiers
-            modifiers = [SizeModifier, QualityModifier]
-            for modifier_class in modifiers:
-                image = modifier_class(image=image, params=request.GET).run().image
-
-            response = HttpResponse(content_type=image_instance.content_type)
-            image.save(response, 'jpeg')
-        return response
+#         image_path = os.path.join(settings.MEDIA_ROOT, image_identifier)
+# 
+#         with open(image_path, 'r') as image_data:
+#             image = Image.open(image_data)
+# 
+#             # apply modifiers
+#             modifiers = [SizeModifier, QualityModifier]
+#             for modifier_class in modifiers:
+#                 image = modifier_class(image=image, params=request.GET).run().image
+# 
+#             response = HttpResponse(content_type=image_instance.content_type)
+#             image.save(response, 'jpeg')
+#         return response
 
 class ImageUploaderView(View):
 
@@ -63,6 +63,7 @@ class ImageUploaderView(View):
 
         image_identifier = ImageModel.generate_hash()
         image_instance.hash = image_identifier
+        image_instance.path = settings.MEDIA_URL + image_instance.hash
 
         image_extension = fr.name.split('.')[-1]
         image_path = os.path.join(settings.MEDIA_ROOT, image_identifier)
