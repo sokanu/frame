@@ -152,6 +152,15 @@ class ImageUploaderTest(TestCase):
             initial_image = Image.open(image_path)
             self.assertEqual(response_image.size, initial_image.size)
 
+    def test_wrong_upload_argument(self):
+        file_path = build_path('frame.jpg')
+
+        c = Client()
+        with open(file_path, 'r') as fp:
+            response = c.post('/upload/', {'invalid_argument': fp})
+
+        self.assertEqual(response.status_code, 400)
+
     def test_valid_formats(self):
         for image_file in ['frame.jpg', 'frame.jpeg', 'frame.png', 'frame.gif']:
             image_path = build_path(image_file)
@@ -169,8 +178,6 @@ class ImageUploaderTest(TestCase):
 
     # try file size limits
     # test to ensure that only valid image files are accepted
-    # try retrieving the uploaded image
-    # try using the wrong argument for file
     # fail basic validation
     # pass basic validation
     # test uploading thousands of files? may be a little intensive, but good for testing memory leaks and forgotten file closing

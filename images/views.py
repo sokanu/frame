@@ -14,30 +14,40 @@ from shutil import copyfileobj
 from PIL import Image
 import StringIO
 import os
+import urllib
 
 
 class ImageView(View):
     def get(self, request, image_identifier):
+        arguments = request.META['QUERY_STRING']
         try:
-            image_instance = ImageModel.objects.get(hash=image_identifier)
+            image_instance = ImageModel.objects.get(hash=image_identifier, variation=arguments)
         except ImageModel.DoesNotExist:
-            raise Http404
+            return self.get_modified_image(request, image_identifier)
+        else:
+            return redirect(image_instance.path)
 
-        return redirect(image_instance.path)
 
-#         image_path = os.path.join(settings.MEDIA_ROOT, image_identifier)
-# 
-#         with open(image_path, 'r') as image_data:
-#             image = Image.open(image_data)
-# 
-#             # apply modifiers
-#             modifiers = [SizeModifier, QualityModifier]
-#             for modifier_class in modifiers:
-#                 image = modifier_class(image=image, params=request.GET).run().image
-# 
-#             response = HttpResponse(content_type=image_instance.content_type)
-#             image.save(response, 'jpeg')
-#         return response
+    def get_modified_image(self, request, image_identifier):
+        image_instance = ImageModel.objects.get(hash=image_identifier)
+
+        image_data = StringIO.StringIO()
+        image_data.write(urllib.urlopen(image_instance.path).read())
+        image_data.seek(0)
+
+        image = Image.open(image_data)
+
+        # apply modifiers
+        modifiers = [SizeModifier, QualityModifier]
+        for modifier_class in modifiers:
+            image = modifier_class(image=image, params=request.GET).run().image
+
+        response = HttpResponse(content_type=image_instance.content_type)
+        image.save(response, 'jpeg')
+
+        image_data.close()
+        return response
+
 
 class ImageUploaderView(View):
 
