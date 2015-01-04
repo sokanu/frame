@@ -4,9 +4,11 @@ from django.views.generic import View
 from django.http import HttpResponse
 from django.http import Http404
 from django.http import HttpResponseForbidden
+from django.http import HttpResponseBadRequest
 from images.modifiers import SizeModifier
 from images.modifiers import QualityModifier
 from images.models import Image as ImageModel
+from django.shortcuts import render
 from shutil import copyfileobj
 from PIL import Image
 import StringIO
@@ -36,7 +38,13 @@ class ImageView(View):
 
 class ImageUploaderView(View):
 
+    def get(self, request):
+        return render(request, 'images/uploader.html')
+
     def post(self, request):
+        if not request.FILES.get('attachment'):
+            return HttpResponseBadRequest('A file must be provided under the `attachment` POST parameter')
+
         fr = request.FILES['attachment']
 
         if not fr.content_type in settings.ALLOWED_FORMATS:
