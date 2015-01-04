@@ -27,3 +27,13 @@ class Image(models.Model):
             if not Image.objects.filter(hash=hash).exists():
                 return hash
         
+
+class S3Connection(models.Model):
+    bucket = models.CharField(max_length=255)
+    access_key = models.CharField(max_length=255)
+    secret_key = models.CharField(max_length=255)
+
+    def save(self, *args, **kwargs):
+        if not self.pk and S3Connection.objects.count():
+            raise Exception('Cannot store more than one S3Connection')
+        super(S3Connection, self).save(*args, **kwargs)
