@@ -9,6 +9,7 @@ from images.modifiers import SizeModifier
 from images.modifiers import QualityModifier
 from images.models import Image as ImageModel
 from django.shortcuts import render
+from django.shortcuts import redirect
 from shutil import copyfileobj
 from PIL import Image
 import StringIO
@@ -21,6 +22,8 @@ class ImageView(View):
             image_instance = ImageModel.objects.get(hash=image_identifier)
         except ImageModel.DoesNotExist:
             raise Http404
+
+        return redirect('/media/' + image_identifier)
 
         image_path = os.path.join(settings.MEDIA_ROOT, image_identifier)
 
@@ -39,7 +42,10 @@ class ImageView(View):
 class ImageUploaderView(View):
 
     def get(self, request):
-        return render(request, 'images/uploader.html')
+        images = ImageModel.objects.all()
+        return render(request, 'images/uploader.html', {
+            'images': images
+        })
 
     def post(self, request):
         if not request.FILES.get('attachment'):
