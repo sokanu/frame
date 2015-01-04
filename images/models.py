@@ -10,6 +10,7 @@ class Image(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     path = models.CharField(max_length=1024)
     variation = models.CharField(max_length=1024, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ('hash', 'variation')
