@@ -6,14 +6,12 @@ import os
 import urllib
 
 class LocalStorage(object):
-    def __init__(self, file_instance, hash, variation):
+    def __init__(self, hash, variation):
         """
         Concerns:
         - The variation property is a little confusing; should it be a dictionary or the argument slug approach? The argument slug method is in a totally different world, so if anything else had to use this it would be screwed. Maybe we should force a dictionary and then move the argument slug creation code here
-        - Should we include file_instance during initialization, or on upload? This library was originally about uploading and uploading only, but now that we're getting into downloading it doesn't make sense. Maybe we put this in the store method
         """
 
-        self.file_instance = file_instance
         self.hash = hash
         self.variation = variation
 
@@ -39,14 +37,14 @@ class LocalStorage(object):
         path = '%s%s' % (settings.MEDIA_URL, self.get_filename())
         return path
 
-    def store(self):
+    def store(self, file_instance):
         """
         Copy over the `file_instance` to the local storage
         """
         image_path = os.path.join(settings.MEDIA_ROOT, self.get_filename())
 
         with open(image_path, 'w') as fw:
-            copyfileobj(self.file_instance, fw)
+            copyfileobj(file_instance, fw)
 
 
 class S3Storage(LocalStorage):
@@ -72,11 +70,11 @@ class S3Storage(LocalStorage):
         data = urllib.urlopen(path).read()
         return data
 
-    def store(self):
+    def store(self, file_instance):
         """
         Copy over the `file_instance` from memory to S3
         """
-        self.conn.upload(self.get_filename(), self.file_instance)
+        self.conn.upload(self.get_filename(), file_instance)
 
     @property
     def S3_BUCKET(self):
