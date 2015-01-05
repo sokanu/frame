@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import Client
 from django.test import TestCase
 import os
@@ -8,8 +9,16 @@ import StringIO
 def request_image(url):
     c = Client()
     response = c.get(url, follow=True)
-    response_data = StringIO.StringIO(response.content)
-    response_image = Image.open(response_data)
+
+    # The response should provide a redirection to the image, served via the media url
+    # Because we cannot load media files in the test environment, we must extract the filename,
+    # build a path to the file, and then load it locally
+    media_url = response.redirect_chain[0][0]
+    media_filename = media_url.split('/')[-1]
+    media_path = os.path.join(settings.MEDIA_ROOT, media_filename)
+
+    # load the local file
+    response_image = Image.open(media_path)
     return response_image
 
 def upload_image(file_path):
@@ -29,10 +38,10 @@ class ImageViewTestCase(TestCase):
         upload_response = upload_image(image_path)
         image_identifier = upload_response.content
 
-        # ensure we can download
+        # ensure we are redirected to an image
         c = Client()
-        response = c.get('/%s/' % image_identifier, follow=True)
-        self.assertEqual(response.status_code, 200)
+        response = c.get('/%s/' % image_identifier)
+        self.assertEqual(response.status_code, 302)
 
     def test_request_invalid_image(self):
         c = Client()
