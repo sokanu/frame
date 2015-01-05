@@ -26,10 +26,10 @@ class ImageView(View):
             image_instance = self.get_modified_image(request, image_identifier)
 
         # TODO: serving static assets is an issue for test cases; how do we fix?
-        from django.core.urlresolvers import reverse
-        return redirect(reverse('image_test_case_viewer', kwargs={'local_filename': image_instance.path.split('/')[-1]}))
+        #from django.core.urlresolvers import reverse
+        #return redirect(reverse('image_test_case_viewer', kwargs={'local_filename': image_instance.path.split('/')[-1]}))
 
-        #return redirect(image_instance.path)
+        return redirect(image_instance.path)
 
     def get_modified_image(self, request, image_identifier):
 
