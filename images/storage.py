@@ -6,26 +6,14 @@ import os
 import urllib
 
 class LocalStorage(object):
-    def __init__(self, hash, variation):
-        """
-        Concerns:
-        - The variation property is a little confusing; should it be a dictionary or the argument slug approach? The argument slug method is in a totally different world, so if anything else had to use this it would be screwed. Maybe we should force a dictionary and then move the argument slug creation code here
-        """
-
-        self.hash = hash
-        self.variation = variation
-
-    def get_filename(self):
-        """
-        Builds a filename by combining the hash name and the variation slug
-        """
-        return self.hash + (self.variation or '')
+    def __init__(self, filename):
+        self.filename = filename
 
     def get_file_data(self):
         """
         Returns the raw data for the specified file
         """
-        image_path = os.path.join(settings.MEDIA_ROOT, self.get_filename())
+        image_path = os.path.join(settings.MEDIA_ROOT, self.filename)
         # TODO: do you need to close this?
         data = open(image_path, 'r').read()
         return data
@@ -34,17 +22,25 @@ class LocalStorage(object):
         """
         Builds a relative remote path by combining the MEDIA_URL setting and the filename
         """
-        path = '%s%s' % (settings.MEDIA_URL, self.get_filename())
-        return path
+        return '%s%s' % (settings.MEDIA_URL, self.filename)
 
     def store(self, file_instance):
         """
         Copy over the `file_instance` to the local storage
         """
-        image_path = os.path.join(settings.MEDIA_ROOT, self.get_filename())
+        image_path = os.path.join(settings.MEDIA_ROOT, self.filename)
 
         with open(image_path, 'w') as fw:
             copyfileobj(file_instance, fw)
+
+    @staticmethod
+    def create_argument_slug(arguments_dict):
+        """
+        Converts an arguments dictionary into a string that can be stored in a filename
+        """
+        args_list = ['%s-%s' % (key, value) for key, value in arguments_dict.items()]
+        return '--'.join(args_list)
+
 
 
 class S3Storage(LocalStorage):
@@ -59,8 +55,7 @@ class S3Storage(LocalStorage):
         """
         Returns an absolute remote path for the filename from the S3 bucket
         """
-        path = 'https://%s.%s/%s' % (self.conn.default_bucket, self.conn.endpoint, self.get_filename())
-        return path
+        return 'https://%s.%s/%s' % (self.conn.default_bucket, self.conn.endpoint, self.filename)
 
     def get_file_data(self):
         """
@@ -74,7 +69,7 @@ class S3Storage(LocalStorage):
         """
         Copy over the `file_instance` from memory to S3
         """
-        self.conn.upload(self.get_filename(), file_instance)
+        self.conn.upload(self.filename, file_instance)
 
     @property
     def S3_BUCKET(self):

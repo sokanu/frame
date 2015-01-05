@@ -18,7 +18,7 @@ import os
 
 class ImageView(View):
     def get(self, request, image_identifier):
-        arguments_slug = self.create_argument_slug(request.GET)
+        arguments_slug = StorageLibrary.create_argument_slug(request.GET)
 
         try:
             image_instance = ImageModel.objects.get(hash=image_identifier, variation=arguments_slug)
@@ -27,18 +27,13 @@ class ImageView(View):
 
         return redirect(image_instance.path)
 
-    @staticmethod
-    def create_argument_slug(arguments):
-        args_list = ['%s-%s' % (key, value) for key, value in arguments.items()]
-        return '--'.join(args_list)
-
     def get_modified_image(self, request, image_identifier):
 
         # grab original image instance data
         image_instance = ImageModel.objects.get(hash=image_identifier, variation__isnull=True)
 
         # download original image data
-        err_is_this_duplicate_image_data = StorageLibrary(hash=image_identifier, variation=None).get_file_data()
+        err_is_this_duplicate_image_data = StorageLibrary(filename=image_identifier).get_file_data()
 
         # why is this needed?
         image_data = StringIO.StringIO()
@@ -59,12 +54,13 @@ class ImageView(View):
         temporary_file_string.seek(0)
 
         # create a new storage instance and save the modified file
-        storage_instance = StorageLibrary(hash=image_identifier, variation = self.create_argument_slug(request.GET))
+        filename = image_identifier + StorageLibrary.create_argument_slug(request.GET)
+        storage_instance = StorageLibrary(filename=filename)
         storage_instance.store(temporary_file_string)
 
         # create a new modified instance
         image_instance.pk = None
-        image_instance.variation = storage_instance.variation
+        image_instance.variation = StorageLibrary.create_argument_slug(request.GET)
         image_instance.path = storage_instance.get_remote_path()
         image_instance.save()
 
@@ -93,7 +89,7 @@ class ImageUploaderView(View):
         # rather than relying on creating instance first
         image_identifier = ImageModel.generate_hash()
 
-        storage_instance = StorageLibrary(hash=image_identifier, variation=None)
+        storage_instance = StorageLibrary(filename=image_identifier)
         storage_instance.store(fr)
 
         image_instance = ImageModel(file_name=fr.name, content_type=fr.content_type)
