@@ -1,0 +1,20 @@
+{
+  "name": "Frame",
+  "description": "Store and manipulate images with ease",
+  "keywords": [
+    "image storage",
+    "image manipulation"
+  ],
+  "repository": "https://github.com/sokanu/frame",
+  "logo": "https://github.com/jskopek/frame/blob/feature/herokubutton/doc/temporary_logo.svg",
+  "success_url": "/upload/",
+  "env": {
+    "WEB_CONCURRENCY": {
+      "description": "The number of processes to run.",
+      "value": "1"
+    }
+  },
+  "addons": [
+    "openredis"
+  ]
+}
