@@ -6,13 +6,16 @@
     "image manipulation"
   ],
   "repository": "https://github.com/sokanu/frame",
-  "logo": "https://github.com/jskopek/frame/blob/feature/herokubutton/doc/temporary_logo.svg",
+  "logo": "https://github.com/jskopek/frame/blob/feature/herokubutton/doc/temporary_logo.png",
   "success_url": "/upload/",
   "env": {
     "WEB_CONCURRENCY": {
       "description": "The number of processes to run.",
       "value": "1"
     }
+  },
+  "scripts": {
+    "postdeploy": "python manage.py migrate"
   },
   "addons": [
     "rediscloud"
