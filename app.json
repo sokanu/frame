@@ -1,0 +1,23 @@
+{
+  "name": "Frame",
+  "description": "Store and manipulate images with ease",
+  "keywords": [
+    "image storage",
+    "image manipulation"
+  ],
+  "repository": "https://github.com/sokanu/frame",
+  "logo": "https://raw.githubusercontent.com/jskopek/frame/feature/herokubutton/doc/temporary_logo.png",
+  "success_url": "/upload/",
+  "env": {
+    "WEB_CONCURRENCY": {
+      "description": "The number of processes to run.",
+      "value": "1"
+    }
+  },
+  "scripts": {
+    "postdeploy": "python manage.py migrate"
+  },
+  "addons": [
+    "rediscloud"
+  ]
+}
