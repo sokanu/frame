@@ -6,7 +6,7 @@
     "image manipulation"
   ],
   "repository": "https://github.com/sokanu/frame",
-  "logo": "https://raw.githubusercontent.com/jskopek/frame/feature/herokubutton/doc/temporary_logo.png",
+  "logo": "https://raw.githubusercontent.com/sokanu/frame/master/doc/temporary_logo.png",
   "success_url": "/upload/",
   "env": {
     "WEB_CONCURRENCY": {
