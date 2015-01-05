@@ -25,12 +25,19 @@ class ImageView(View):
         except ImageModel.DoesNotExist:
             image_instance = self.get_modified_image(request, image_identifier)
 
-        return redirect(image_instance.path)
+        # TODO: serving static assets is an issue for test cases; how do we fix?
+        from django.core.urlresolvers import reverse
+        return redirect(reverse('image_test_case_viewer', kwargs={'local_filename': image_instance.path.split('/')[-1]}))
+
+        #return redirect(image_instance.path)
 
     def get_modified_image(self, request, image_identifier):
 
         # grab original image instance data
-        image_instance = ImageModel.objects.get(hash=image_identifier, variation__isnull=True)
+        try:
+            image_instance = ImageModel.objects.get(hash=image_identifier, variation__isnull=True)
+        except ImageModel.DoesNotExist:
+            raise Http404
 
         # download original image data
         err_is_this_duplicate_image_data = StorageLibrary(filename=image_identifier).get_file_data()
@@ -66,6 +73,11 @@ class ImageView(View):
 
         return image_instance
 
+# TODO: serving static assets is an issue for test cases; how do we fix?
+class ImageTestCaseViewer(View):
+    def get(self, request, local_filename):
+        with open(os.path.join(settings.MEDIA_ROOT, local_filename), 'r') as fr:
+            return HttpResponse(fr.read())
 
 class ImageUploaderView(View):
 

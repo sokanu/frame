@@ -38,6 +38,7 @@ class LocalStorage(object):
         """
         Converts an arguments dictionary into a string that can be stored in a filename
         """
+        # TODO: is there a possible bug if an invalid key/value is presented?
         args_list = ['%s-%s' % (key, value) for key, value in arguments_dict.items()]
         return '--'.join(args_list)
 

@@ -7,7 +7,7 @@ import StringIO
 # helpers
 def request_image(url):
     c = Client()
-    response = c.get(url)
+    response = c.get(url, follow=True)
     response_data = StringIO.StringIO(response.content)
     response_image = Image.open(response_data)
     return response_image
@@ -31,12 +31,12 @@ class ImageViewTestCase(TestCase):
 
         # ensure we can download
         c = Client()
-        response = c.get('/%s/' % image_identifier)
+        response = c.get('/%s/' % image_identifier, follow=True)
         self.assertEqual(response.status_code, 200)
 
     def test_request_invalid_image(self):
         c = Client()
-        response = c.get('/123123/')
+        response = c.get('/123123/', follow=True)
         self.assertEqual(response.status_code, 404)
 
 
