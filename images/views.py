@@ -5,6 +5,8 @@ from django.http import HttpResponse
 from django.http import Http404
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseBadRequest
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from images.modifiers import SizeModifier
 from images.modifiers import QualityModifier
 from images.models import Image as ImageModel
@@ -77,6 +79,7 @@ class ImageUploaderView(View):
             'images': images
         })
 
+    @method_decorator(csrf_exempt)
     def post(self, request):
         if not request.FILES.get('attachment'):
             return HttpResponseBadRequest('A file must be provided under the `attachment` POST parameter')
