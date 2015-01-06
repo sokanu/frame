@@ -8,17 +8,20 @@ from django.http import HttpResponseBadRequest
 from images.modifiers import SizeModifier
 from images.modifiers import QualityModifier
 from images.models import Image as ImageModel
-from images.storage import LocalStorage as StorageLibrary
 from django.shortcuts import render
 from django.shortcuts import redirect
 from PIL import Image
+import importlib
 import StringIO
 import os
 
+# initialize the storage module
+storage_library_module_name, storage_library_class_name = settings.FRAME_STORAGE_LIBRARY.rsplit('.', 1)
+STORAGE_LIBRARY = getattr(importlib.import_module(storage_library_module_name), storage_library_class_name)
 
 class ImageView(View):
     def get(self, request, image_identifier):
-        arguments_slug = StorageLibrary.create_argument_slug(request.GET)
+        arguments_slug = STORAGE_LIBRARY.create_argument_slug(request.GET)
 
         try:
             image_instance = ImageModel.objects.get(hash=image_identifier, variation=arguments_slug)
@@ -36,7 +39,7 @@ class ImageView(View):
             raise Http404
 
         # download original image data
-        err_is_this_duplicate_image_data = StorageLibrary(filename=image_identifier).get_file_data()
+        err_is_this_duplicate_image_data = STORAGE_LIBRARY(filename=image_identifier).get_file_data()
 
         # why is this needed?
         image_data = StringIO.StringIO()
@@ -57,13 +60,13 @@ class ImageView(View):
         temporary_file_string.seek(0)
 
         # create a new storage instance and save the modified file
-        filename = image_identifier + StorageLibrary.create_argument_slug(request.GET)
-        storage_instance = StorageLibrary(filename=filename)
+        filename = image_identifier + STORAGE_LIBRARY.create_argument_slug(request.GET)
+        storage_instance = STORAGE_LIBRARY(filename=filename)
         storage_instance.store(temporary_file_string)
 
         # create a new modified instance
         image_instance.pk = None
-        image_instance.variation = StorageLibrary.create_argument_slug(request.GET)
+        image_instance.variation = STORAGE_LIBRARY.create_argument_slug(request.GET)
         image_instance.path = storage_instance.get_remote_path()
         image_instance.save()
 
@@ -91,7 +94,7 @@ class ImageUploaderView(View):
         # rather than relying on creating instance first
         image_identifier = ImageModel.generate_hash()
 
-        storage_instance = StorageLibrary(filename=image_identifier)
+        storage_instance = STORAGE_LIBRARY(filename=image_identifier)
         storage_instance.store(fr)
 
         image_instance = ImageModel(file_name=fr.name, content_type=fr.content_type)

@@ -97,3 +97,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 
 # Frame-specific settings
 ALLOWED_FORMATS = ('image/jpg', 'image/jpeg', 'image/gif', 'image/png')
+
+FRAME_STORAGE_LIBRARY = 'images.storage.S3Storage'
+#FRAME_STORAGE_LIBRARY = 'images.storage.LocalStorage'
