@@ -5,6 +5,8 @@ from django.http import HttpResponse
 from django.http import Http404
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from images.modifiers import SizeModifier
 from images.modifiers import QualityModifier
 from images.models import Image as ImageModel
@@ -14,6 +16,7 @@ from PIL import Image
 import importlib
 import StringIO
 import os
+import mimetypes
 
 # initialize the storage module
 storage_library_module_name, storage_library_class_name = settings.FRAME_STORAGE_LIBRARY.rsplit('.', 1)
@@ -74,6 +77,10 @@ class ImageView(View):
 
 class ImageUploaderView(View):
 
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(ImageUploaderView, self).dispatch(*args, **kwargs)
+
     def get(self, request):
         images = ImageModel.objects.filter(variation__isnull=True)
         return render(request, 'images/uploader.html', {
@@ -86,8 +93,9 @@ class ImageUploaderView(View):
 
         fr = request.FILES['attachment']
 
-        if not fr.content_type in settings.ALLOWED_FORMATS:
-            return HttpResponseForbidden()
+        mimetype, encoding = mimetypes.guess_type(fr.name)
+        if not mimetype in settings.ALLOWED_FORMATS:
+            return HttpResponseForbidden('The provided file\'s mimetype of `%s` is not in the ALLOWED_FORMATS list' % mimetype)
 
 
         # Ugh, we should change this; needs to be a better way to get a unique ID
@@ -103,4 +111,5 @@ class ImageUploaderView(View):
         image_instance.save()
 
         return HttpResponse(image_identifier)
+
 
