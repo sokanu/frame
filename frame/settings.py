@@ -102,9 +102,20 @@ ALLOWED_FORMATS = ('image/jpg', 'image/jpeg', 'image/gif', 'image/png')
 FRAME_STORAGE_LIBRARY = 'images.storage.S3Storage'
 #FRAME_STORAGE_LIBRARY = 'images.storage.LocalStorage'
 
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#        'LOCATION': 'unique-snowflake'
+#    }
+#}
+#
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake'
+        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+        'LOCATION': os.environ.get('MEMCACHEDCLOUD_SERVERS').split(','),
+        'OPTIONS': {
+                    'username': os.environ.get('MEMCACHEDCLOUD_USERNAME'),
+                    'password': os.environ.get('MEMCACHEDCLOUD_PASSWORD')
+            }
     }
 }
