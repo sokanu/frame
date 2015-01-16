@@ -101,3 +101,10 @@ ALLOWED_FORMATS = ('image/jpg', 'image/jpeg', 'image/gif', 'image/png')
 
 FRAME_STORAGE_LIBRARY = 'images.storage.S3Storage'
 #FRAME_STORAGE_LIBRARY = 'images.storage.LocalStorage'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake'
+    }
+}

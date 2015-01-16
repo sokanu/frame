@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.cache import cache
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import HttpResponse
@@ -26,12 +27,21 @@ class ImageView(View):
     def get(self, request, image_identifier):
         arguments_slug = STORAGE_LIBRARY.create_argument_slug(request.GET)
 
-        try:
-            image_instance = ImageModel.objects.get(hash=image_identifier, variation=arguments_slug)
-        except ImageModel.DoesNotExist:
-            image_instance = self.get_modified_image(request, image_identifier)
+        # check cache
+        cache_key = '%s__%s' % (image_identifier, arguments_slug)
 
-        return redirect(image_instance.path)
+        path = cache.get(cache_key)
+        if not path:
+
+            try:
+                image_instance = ImageModel.objects.get(hash=image_identifier, variation=arguments_slug)
+            except ImageModel.DoesNotExist:
+                image_instance = self.get_modified_image(request, image_identifier)
+
+            path = image_instance.path
+            cache.set(cache_key, path)
+
+        return redirect(path)
 
     def get_modified_image(self, request, image_identifier):
 
