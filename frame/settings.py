@@ -47,13 +47,13 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#    'django.contrib.sessions.middleware.SessionMiddleware',
+#    'django.middleware.common.CommonMiddleware',
+#    'django.middleware.csrf.CsrfViewMiddleware',
+#    'django.contrib.auth.middleware.AuthenticationMiddleware',
+#    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+#    'django.contrib.messages.middleware.MessageMiddleware',
+#    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'frame.urls'
@@ -108,7 +108,7 @@ FRAME_STORAGE_LIBRARY = 'images.storage.S3Storage'
 #        'LOCATION': 'unique-snowflake'
 #    }
 #}
-#
+
 CACHES = {
     'default': {
         'BACKEND': 'django_bmemcached.memcached.BMemcached',
