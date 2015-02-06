@@ -120,3 +120,12 @@ CACHES = {
         'OPTIONS': CACHE_OPTIONS
     }
 }
+
+
+# Load local settings if file is found
+try:
+    from frame.settings_local import *
+except ImportError:
+    pass
+
+
