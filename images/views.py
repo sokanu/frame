@@ -42,7 +42,6 @@ class ImageView(View):
             path = image_instance.path
             cache.set(cache_key, path)
 
-        return HttpResponse(path) # temporary
         return redirect(path)
 
     def get_modified_image(self, request, image_identifier):
