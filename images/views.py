@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.http import Http404
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseBadRequest
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from images.modifiers import SizeModifier
@@ -25,6 +26,7 @@ STORAGE_LIBRARY = getattr(importlib.import_module(storage_library_module_name), 
 
 class ImageView(View):
     def get(self, request, image_identifier):
+        return HttpResponse('ok') # temporary
         arguments_slug = STORAGE_LIBRARY.create_argument_slug(request.GET)
 
         # check cache
@@ -41,6 +43,7 @@ class ImageView(View):
             path = image_instance.path
             cache.set(cache_key, path)
 
+        return HttpResponse(path) # temporary
         return redirect(path)
 
     def get_modified_image(self, request, image_identifier):
