@@ -20,14 +20,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'wr#$q1lop5zwb--8*3%9xv-lix+ab2@dp6h&p0&l1@5w5jm^ui'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG_ENABLED', False)
 
 TEMPLATE_DEBUG = True
 TEMPLATE_DIRS =(
     os.path.join(BASE_DIR, 'templates'),
 )
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.herokuapp.com', 'localhost']
 
 
 # Application definition
