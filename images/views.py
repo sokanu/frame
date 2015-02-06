@@ -26,7 +26,6 @@ STORAGE_LIBRARY = getattr(importlib.import_module(storage_library_module_name), 
 
 class ImageView(View):
     def get(self, request, image_identifier):
-        return HttpResponse('ok') # temporary
         arguments_slug = STORAGE_LIBRARY.create_argument_slug(request.GET)
 
         # check cache
