@@ -7,6 +7,7 @@ django-bmemcached==0.2.2
 django-coverage==1.2.4
 django-devserver==0.8.0
 django-toolbelt==0.0.1
+django-urlmiddleware==0.2.1
 futures==2.2.0
 gevent==1.0.1
 greenlet==0.4.5

@@ -9,8 +9,16 @@ urlpatterns = patterns('',
     #url(r'^$', csrf_exempt(ImageUploaderView.as_view())),
     url(r'^$', ImageUploaderView.as_view()),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^(?P<image_identifier>[^/]+)/$', ImageView.as_view(), name='image'),
+    url(r'^image/(?P<image_identifier>[^/]+)/$', ImageView.as_view(), name='image'),
 ) 
+
+# apply authentication middleware on everything but the image urls
+from urlmiddleware.conf import middleware, mpatterns
+middlewarepatterns = mpatterns('',
+    middleware(r'^(?!image)/', 'django.contrib.sessions.middleware.SessionMiddleware'),
+    middleware(r'^(?!image)/', 'django.contrib.auth.middleware.AuthenticationMiddleware'),
+    middleware(r'^(?!image)/', 'django.contrib.auth.middleware.SessionAuthenticationMiddleware'),
+)
 
 # Serving Locally Stored Media Files
 # ----------------------------------
