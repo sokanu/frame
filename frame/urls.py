@@ -15,9 +15,9 @@ urlpatterns = patterns('',
 # apply authentication middleware on everything but the image urls
 from urlmiddleware.conf import middleware, mpatterns
 middlewarepatterns = mpatterns('',
-    middleware(r'^(?!image)/', 'django.contrib.sessions.middleware.SessionMiddleware'),
-    middleware(r'^(?!image)/', 'django.contrib.auth.middleware.AuthenticationMiddleware'),
-    middleware(r'^(?!image)/', 'django.contrib.auth.middleware.SessionAuthenticationMiddleware'),
+    middleware(r'^(?!image)', 'django.contrib.sessions.middleware.SessionMiddleware'),
+    middleware(r'^(?!image)', 'django.contrib.auth.middleware.AuthenticationMiddleware'),
+    middleware(r'^(?!image)', 'django.contrib.auth.middleware.SessionAuthenticationMiddleware'),
 )
 
 # Serving Locally Stored Media Files
