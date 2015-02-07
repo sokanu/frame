@@ -46,14 +46,25 @@ INSTALLED_APPS = (
     'client',
 )
 
+#MIDDLEWARE_CLASSES = (
+#    'django.middleware.common.CommonMiddleware',
+#    'django.middleware.csrf.CsrfViewMiddleware',
+#    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#
+#    # Custom, view-based middelware. Middleware rules are defined in urls.py
+#    'urlmiddleware.URLMiddleware',
+#)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # Custom, view-based middelware. Middleware rules are defined in urls.py
-    'urlmiddleware.URLMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
 )
+
 
 ROOT_URLCONF = 'frame.urls'
 
