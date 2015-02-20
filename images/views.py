@@ -76,7 +76,7 @@ class ImageView(View):
         # create a new storage instance and save the modified file
         filename = image_identifier + STORAGE_LIBRARY.create_argument_slug(request.GET)
         storage_instance = STORAGE_LIBRARY(filename=filename)
-        storage_instance.store(temporary_file_string)
+        storage_instance.store(temporary_file_string, content_type=image_instance.content_type)
 
         # create a new modified instance
         image_instance.pk = None
@@ -114,7 +114,7 @@ class ImageUploaderView(View):
         image_identifier = ImageModel.generate_hash()
 
         storage_instance = STORAGE_LIBRARY(filename=image_identifier)
-        storage_instance.store(fr)
+        storage_instance.store(fr, content_type=fr.content_type)
 
         image_instance = ImageModel(file_name=fr.name, content_type=fr.content_type)
         image_instance.hash = image_identifier
