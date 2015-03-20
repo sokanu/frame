@@ -24,7 +24,7 @@ class LocalStorage(object):
         """
         return '%s%s' % (settings.MEDIA_URL, self.filename)
 
-    def store(self, file_instance):
+    def store(self, file_instance, content_type=None):
         """
         Copy over the `file_instance` to the local storage
         """
@@ -66,11 +66,11 @@ class S3Storage(LocalStorage):
         data = urllib.urlopen(path).read()
         return data
 
-    def store(self, file_instance):
+    def store(self, file_instance, content_type=None):
         """
         Copy over the `file_instance` from memory to S3
         """
-        self.conn.upload(self.filename, file_instance)
+        self.conn.upload(self.filename, file_instance, content_type=content_type)
 
     @property
     def S3_BUCKET(self):

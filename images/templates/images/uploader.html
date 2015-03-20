@@ -3,9 +3,8 @@
 <img src="{{ image.get_absolute_url }}?width=100">
 {% endfor %}
 
-<h2>Upload
+<h2>Upload</h2>
 <form method='POST' action='' enctype="multipart/form-data">
-    {% csrf_token %}
     <input type="file" name="attachment">
     <input type="submit" value="Upload!">
 </form>

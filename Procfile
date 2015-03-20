@@ -1,1 +1,1 @@
-web: gunicorn frame.wsgi --log-file -
+web: gunicorn frame.wsgi --log-file - 

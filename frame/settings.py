@@ -20,14 +20,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'wr#$q1lop5zwb--8*3%9xv-lix+ab2@dp6h&p0&l1@5w5jm^ui'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG_ENABLED', False)
 
 TEMPLATE_DEBUG = True
 TEMPLATE_DIRS =(
     os.path.join(BASE_DIR, 'templates'),
 )
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.herokuapp.com', 'localhost']
 
 
 # Application definition
@@ -43,17 +43,28 @@ INSTALLED_APPS = (
     'django_coverage',
 
     'images',
+    'client',
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Custom, view-based middelware. Middleware rules are defined in urls.py
+    'urlmiddleware.URLMiddleware',
 )
+
+#MIDDLEWARE_CLASSES = (
+#    'django.middleware.common.CommonMiddleware',
+#    'django.middleware.csrf.CsrfViewMiddleware',
+#    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#
+#    'django.contrib.sessions.middleware.SessionMiddleware',
+#    'django.contrib.auth.middleware.AuthenticationMiddleware',
+#    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+#)
+
 
 ROOT_URLCONF = 'frame.urls'
 
@@ -97,3 +108,34 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 
 # Frame-specific settings
 ALLOWED_FORMATS = ('image/jpg', 'image/jpeg', 'image/gif', 'image/png')
+
+FRAME_STORAGE_LIBRARY = 'images.storage.S3Storage'
+#FRAME_STORAGE_LIBRARY = 'images.storage.LocalStorage'
+
+# Caching options
+if os.environ.get('MEMCACHEDCLOUD_SERVERS'):
+    CACHE_BACKEND = 'django_bmemcached.memcached.BMemcached'
+    CACHE_LOCATION = os.environ.get('MEMCACHEDCLOUD_SERVERS').split(',')
+    CACHE_OPTIONS = {'username': os.environ.get('MEMCACHEDCLOUD_USERNAME'), 'password': os.environ.get('MEMCACHEDCLOUD_PASSWORD')}
+else:
+    CACHE_BACKEND = 'django.core.cache.backends.locmem.LocMemCache'
+    CACHE_LOCATION = 'unique-snowflake'
+    CACHE_OPTIONS = {}
+
+
+CACHES = {
+    'default': {
+        'BACKEND': CACHE_BACKEND,
+        'LOCATION': CACHE_LOCATION,
+        'OPTIONS': CACHE_OPTIONS
+    }
+}
+
+
+# Load local settings if file is found
+try:
+    from frame.settings_local import *
+except ImportError:
+    pass
+
+
