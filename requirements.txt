@@ -7,9 +7,9 @@ django-bmemcached==0.2.2
 django-coverage==1.2.4
 django-devserver==0.8.0
 django-toolbelt==0.0.1
-django-urlmiddleware==0.2.1
+-e git+https://github.com/d0ugal-archive/django-urlmiddleware@91fb3d26bc7ee1a053ed4b31f511c8f323789c46#egg=django-urlmiddleware
 futures==2.2.0
-gevent==1.0.1
+gevent==1.0.2
 greenlet==0.4.5
 gunicorn==19.1.1
 psycopg2==2.5.4
